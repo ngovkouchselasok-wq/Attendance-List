@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPIC Class Attendance</title>
+    <style>
+        /* Modern Dark Theme Base */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #649fb8, #090909b3, #6f9a71); 
+            color: #e0e0e0; 
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        /* Glassmorphism Container */
+        .container { 
+            max-width: 900px; /* Widened slightly to fit the new email column */
+            margin: 0 auto; 
+            padding: 40px; 
+            background: rgb(255, 255, 255); 
+            border-radius: 16px; 
+            border: 1px solid #000000; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(20, 146, 74, 0.2); 
+            backdrop-filter: blur(10px);
+        }
+
+        /* --- HEADER STYLING --- */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .school-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .school-logo {
+            height: 65px; 
+            width: auto;
+        }
+
+        .school-names {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .khmer-name {
+            font-family: 'Khmer OS Battambang', 'Hanuman', sans-serif;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #1c2e8a; 
+            margin-bottom: 2px;
+        }
+
+        .english-name {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #1c2e8a; 
+            letter-spacing: 0.5px;
+        }
+
+        .dept-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: #1c2e8a; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: right;
+            border-left: 5px solid #ccc;
+            padding-left: 15px;
+        }
+
+        h1 { 
+            color: #000000; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+        /* Form Styling */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #000000;
+        }
+
+        input[type="text"], input[type="email"], select { 
+            padding: 12px; 
+            font-size: 1em; 
+            border-radius: 8px; 
+            border: 1px solid #000000; 
+            background: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        input[type="text"]::placeholder, input[type="email"]::placeholder { color: #000000; }
+        
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: #000000; 
+            box-shadow: 0 0 8px rgba(84, 237, 245, 0.766);
+        }
+
+        /* Radio Buttons */
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white; 
+        }
+
+        .radio-label input[type="radio"] {
+            accent-color: #f30303;
+            transform: scale(1.2);
+        }
+
+        #reasonGroup {
+            display: none; 
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button { 
+            background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
+            color: #111; 
+            font-weight: bold;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            padding: 15px;
+            cursor: pointer; 
+            border: none; 
+            border-radius: 8px;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(146, 254, 157, 0.91); 
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            margin-top: 40px;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #000000;
+        }
+
+        th {
+            background: rgb(0, 0, 0);
+            color: #ffffff;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        td { color: white; }
+
+        tr:hover { background: rgb(93, 91, 91); }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-attend {
+            background: rgb(255, 254, 254);
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        .status-permission {
+            background: rgb(255, 255, 255);
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: #000000;
+            border: 1px solid #ff4757;
+            margin-top: 20px;
+            width: auto;
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+        
+        .clear-btn:hover {
+            background: #da4b57;
+            color: white;
+            box-shadow: 0 5px 15px rgb(140, 28, 28);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="header-top">
+            <div class="school-info">
+                <img src="cropped-14354877_1209176079125254_1461045376909754624_n2.png" alt="NPIC Logo" class="school-logo">
+                <div class="school-names">
+                    <span class="khmer-name">វិទ្យាស្ថានជាតិពហុបច្ចេកទេសកម្ពុជា</span>
+                    <span class="english-name">NATIONAL POLYTECHNIC INSTITUTE OF CAMBODIA</span>
+                </div>
+            </div>
+            <div class="dept-title">
+                Telecom Department
+            </div>
+        </div>
+        <h1>Class Attendance</h1>
+        
+        <form id="attendanceForm">
+            <div class="input-group">
+                <input type="text" id="studentName" placeholder="Student Name" required>
+                
+                <select id="studyYear" required>
+                    <option value="" disabled selected>Select Study Year...</option>
+                    <option value="Year 1">Year 1</option>
+                    <option value="Year 2">Year 2</option>
+                    <option value="Year 3">Year 3</option>
+                    <option value="Year 4">Year 4</option>
+                </select>
+
+                <input type="email" id="studentEmail" placeholder="Student Email" required>
+
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="status" value="Attend" checked required onclick="toggleReason()"> 
+                        Attend Class
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="status" value="Permission" onclick="toggleReason()"> 
+                        Permission
+                    </label>
+                </div>
+
+                <div id="reasonGroup">
+                    <input type="text" id="reasonInput" placeholder="Enter reason for permission..." style="width: 95%;">
+                </div>
+            </div>
+
+            <button id="submitBtn" type="submit">Submit</button>
+        </form>
+
+        <table id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th> <th>Year</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+        
+        <div style="text-align: right;">
+            <button class="clear-btn" onclick="clearData()">Clear All Data</button>
+        </div>
+    </div>
+
+    <script>
+        let records = [];
+
+        window.onload = function() {
+            const savedData = localStorage.getItem('attendanceData');
+            if(savedData) {
+                records = JSON.parse(savedData);
+                updateTable();
+            }
+        };
+
+        function toggleReason() {
+            const status = document.querySelector('input[name="status"]:checked').value;
+            const reasonGroup = document.getElementById('reasonGroup');
+            const reasonInput = document.getElementById('reasonInput');
+
+            if (status === 'Permission') {
+                reasonGroup.style.display = 'block';
+                reasonInput.required = true;
+            } else {
+                reasonGroup.style.display = 'none';
+                reasonInput.required = false;
+                reasonInput.value = ''; 
+            }
+        }
+
+        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            // Change button text to show it's working
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "Sending...";
+            btn.style.opacity = "0.7";
+
+            const name = document.getElementById('studentName').value;
+            const year = document.getElementById('studyYear').value;
+            const email = document.getElementById('studentEmail').value; // GET EMAIL VALUE
+            const status = document.querySelector('input[name="status"]:checked').value;
+            const reason = document.getElementById('reasonInput').value;
+            const finalReason = status === 'Permission' ? reason : '-';
+
+            // Generate exact current Date and Time
+            const now = new Date();
+            const submitDate = now.toLocaleDateString(); 
+            const submitTime = now.toLocaleTimeString(); 
+
+            // 1. Prepare data for Formspree
+            const formData = new FormData();
+            formData.append("Name", name);
+            formData.append("Email", email); // SEND EMAIL TO FORMSPREE
+            formData.append("Study Year", year);
+            formData.append("Status", status);
+            formData.append("Reason", finalReason);
+            formData.append("Date", submitDate);
+            formData.append("Time", submitTime);
+
+            // 2. Send to Formspree silently using fetch with your link
+            fetch("https://formspree.io/f/xkopgqpb", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Success! Data sent to Formspree.");
+                } else {
+                    console.error("Formspree error.");
+                }
+            }).catch(error => {
+                console.error("Network error sending to Formspree:", error);
+            }).finally(() => {
+                // Reset button appearance
+                btn.innerHTML = originalText;
+                btn.style.opacity = "1";
+            });
+
+            // 3. Save to Local UI Table
+            const newRecord = {
+                name: name,
+                email: email, // SAVE EMAIL LOCALLY
+                year: year,
+                status: status,
+                reason: finalReason
+            };
+
+            records.push(newRecord);
+            localStorage.setItem('attendanceData', JSON.stringify(records));
+
+            updateTable();
+            this.reset();
+            toggleReason(); 
+            document.getElementById('studentName').focus(); 
+        });
+
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = ''; 
+
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                const statusClass = record.status === 'Attend' ? 'status-attend' : 'status-permission';
+                
+              row.innerHTML = `
+                    <td><strong>${record.name}</strong></td>
+                    <td style="color: #cbd5e1; font-size: 0.9em;">${record.email}</td> <td>${record.year}</td>
+                    <td><span class="status-badge ${statusClass}">${record.status}</span></td>
+                    <td style="color: white;">${record.reason}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function clearData() {
+            if(confirm("Are you sure you want to delete the entire attendance list?")) {
+                records = [];
+                localStorage.removeItem('attendanceData');
+                updateTable();
+            }
+        }
+    </script>
+</body>
+</html>
